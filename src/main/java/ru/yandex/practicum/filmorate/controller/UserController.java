@@ -14,8 +14,8 @@ import java.util.Map;
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
-    static int lastGeneratedId;
-    Map<Integer, User> users = new HashMap<>();
+    int lastGeneratedId = 0;
+    private Map<Integer, User> users = new HashMap<>();
 
     @PostMapping
     public User addUser(@Valid @RequestBody User user) throws ValidationException {
@@ -28,13 +28,12 @@ public class UserController {
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) throws ValidationException {
-        if (users.containsKey(user.getId())) {
-            users.put(user.getId(), user);
-            log.info("updateUser(): " + user + " обновлен");
-        } else {
+        if (!users.containsKey(user.getId())) {
             log.debug("updateUser(): " + user + " не обновлен (id =" + user.getId() + " отсутствует)");
             throw new ValidationException("id пользователя отсутствует в списке");
         }
+        users.put(user.getId(), user);
+        log.info("updateUser(): " + user + " обновлен");
         return user;
     }
 

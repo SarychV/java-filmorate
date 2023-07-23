@@ -14,8 +14,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    static int lastGeneratedId;
-    Map<Integer, Film> films = new HashMap<>();
+    private int lastGeneratedId = 0;
+    private Map<Integer, Film> films = new HashMap<>();
     public static final ch.qos.logback.classic.Logger log =
             (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(FilmController.class);
 
@@ -35,13 +35,12 @@ public class FilmController {
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) throws ValidationException {
         film.validate();
-        if (films.containsKey(film.getId())) {
-            films.put(film.getId(), film);
-            log.info("updateFilm(): " + film + " обновлен");
-        } else {
+        if (!films.containsKey(film.getId())) {
             log.debug("updateFilm(): " + film + " не обновлен (отсутствует)");
             throw new ValidationException();
         }
+        films.put(film.getId(), film);
+        log.info("updateFilm(): " + film + " обновлен");
         return film;
     }
 
