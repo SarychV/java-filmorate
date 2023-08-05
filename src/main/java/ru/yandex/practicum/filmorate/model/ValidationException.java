@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
-public class ValidationException extends Exception {
+public class ValidationException extends IllegalArgumentException {
     public ValidationException() {
     }
 

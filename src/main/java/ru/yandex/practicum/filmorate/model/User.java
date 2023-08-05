@@ -1,51 +1,68 @@
 package ru.yandex.practicum.filmorate.model;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 import lombok.*;
+import ru.yandex.practicum.filmorate.validator.WithoutBlanks;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PastOrPresent;
+import javax.validation.constraints.*;
 
-@Data
-@Builder(toBuilder = true)
+@Setter
+@Getter
+@EqualsAndHashCode
+@ToString
 public class User {
     private int id;
-    @NotNull
     @Email
-    private String email;
     @NotNull
-    @NotBlank
+    private String email;
+
+    @NotNull
+    @NotEmpty
+    @WithoutBlanks
     private String login;
     private String name;
-    @NotNull
     @PastOrPresent
     private LocalDate birthday;
+    private Set<Long> friends;
+
+    public User() {
+        this.friends = new HashSet<>();
+    }
 
     public User(int id, String email, String login, String name, LocalDate date) {
         this.id = id;
         this.email = email;
         this.login = login;
-        if (name == null || name.isEmpty()) {
-            this.name = login;
-        } else {
-            this.name = name;
-        }
+        this.name = name;
         this.birthday = date;
+        this.friends = new HashSet<>();
     }
 
-    public void validate() throws ValidationException {
-        if (email.isEmpty())
-            throw new ValidationException("Адрес электронной почты не может быть пустым.");
-        if (!email.contains("@"))
-            throw new ValidationException("Адрес электронной почты должен содержать символ '@'.");
-        if (login.isEmpty())
-            throw new ValidationException("Логин пользователя не может быть пустым.");
-        if (login.contains(" "))
-            throw new ValidationException("Логин пользователя не может содержать пробелы.");
-        if (birthday.isAfter(LocalDate.now()))
-            throw new ValidationException("Дата рождения не может быть позже текущей даты.");
+    public User(int id, String email, String login, String name, LocalDate date, Set<Long> friends) {
+        this.id = id;
+        this.email = email;
+        this.login = login;
+        this.name = name;
+        this.birthday = date;
+        if (friends != null) {
+            this.friends = friends;
+        } else {
+            this.friends = new HashSet<>();
+        }
+    }
+
+    public void addFriend(long userId) {
+        friends.add(userId);
+    }
+
+    public void removeFriend(long userId) {
+        friends.remove(userId);
+    }
+
+    public Set<Long> findIdsOfFriends() {
+        return friends;
     }
 }
