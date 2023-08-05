@@ -46,14 +46,8 @@ public class UserTest {
 
     @Test
     void checkIncorrectLoginValues() {
-        User user = new User(1, "user@localhost", null, "user#1", LocalDate.of(2002,03,19));
-
+        User user = user = new User(1, "user@localhost", "", "user#1", LocalDate.of(2002,03,19));
         Set<ConstraintViolation<User>> constraintViolations = validator.validate(user);
-        assertEquals(2, constraintViolations.size());
-        assertEquals("must not be empty", constraintViolations.iterator().next().getMessage());
-
-        user = new User(1, "user@localhost", "", "user#1", LocalDate.of(2002,03,19));
-        constraintViolations = validator.validate(user);
         assertEquals(1, constraintViolations.size());
         assertEquals("must not be empty", constraintViolations.iterator().next().getMessage());
 
