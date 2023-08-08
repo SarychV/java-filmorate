@@ -30,13 +30,17 @@ public class FilmController {
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
+        int filmId = film.getId();
+        if (filmId != 0) throw new ValidationException(
+                String.format("Используется неверный идентификатор фильма: id=%d", filmId));
         filmService.addFilm(film);
         log.info("Фильм добавлен в фильмотеку: " + film);
         return film;
     }
 
     @PutMapping
-    public Film updateFilm(@Valid @RequestBody Film film) throws ValidationException {
+    public Film updateFilm(@Valid @RequestBody Film film) {
+        hasValidFilmId(film.getId());
         filmService.updateFilm(film);
         log.info("Фильм обновлен в фильмотеке: " + film);
         return film;
@@ -44,34 +48,46 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")
     public void addLikeToFilm(@PathVariable int id, @PathVariable int userId) {
-        if (id <= 0) throw new ValidationException("Неверное значение идентификатора фильма.");
-        if (userId <= 0) throw new ValidationException("Неверное значение идентификатора пользователя.");
+        hasValidFilmId(id);
+        hasValidUserId(userId);
         filmService.addLikeToFilm(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public void removeLikeFromFilm(@PathVariable int id, @PathVariable Integer userId) {
-        if (id <= 0) throw new ValidationException("Неверное значение идентификатора фильма.");
-        if (userId <= 0) throw new ValidationException("Неверное значение идентификатора пользователя.");
+        hasValidFilmId(id);
+        hasValidUserId(userId);
         filmService.removeLikeFromFilm(id, userId);
     }
 
     @GetMapping
     public Collection<Film> getFilms() {
-        return filmService.selectAllFilms();
+        return filmService.findAllFilms();
     }
 
     @GetMapping("/{id}")
     public Film getFilmById(@PathVariable int id) {
-        if (id <= 0) throw new ValidationException("Неверное значение идентификатора фильма.");
-        return filmService.selectFilmById(id);
+        hasValidFilmId(id);
+        return filmService.findFilmById(id);
     }
 
     @GetMapping("/popular")
     public Collection<Film> sendMorePopularFilms(@RequestParam Optional<Integer> count) {
         if (count.isPresent()) {
-            return filmService.selectMorePopularFilms(count.get());
+            return filmService.findMorePopularFilms(count.get());
         }
-        return filmService.selectMorePopularFilms(10);
+        return filmService.findMorePopularFilms(10);
+    }
+
+    private boolean hasValidUserId(int id) {
+        if (id <= 0) throw new ValidationException(
+                String.format("Используется неверный идентификатор пользователя: id=%d", id));
+        return true;
+    }
+
+    private boolean hasValidFilmId(int id) {
+        if (id <= 0) throw new ValidationException(
+                String.format("Используется неверный идентификатор фильма: id=%d", id));
+        return true;
     }
 }

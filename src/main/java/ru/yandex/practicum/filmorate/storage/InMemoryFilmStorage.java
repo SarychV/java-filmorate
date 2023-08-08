@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.NotFoundException;
 import ru.yandex.practicum.filmorate.model.ValidationException;
 
 import java.util.Collection;
@@ -12,10 +13,15 @@ import java.util.Map;
 public class InMemoryFilmStorage implements FilmStorage {
 
     private final Map<Integer, Film> films = new HashMap<>();
+    private int lastGeneratedFilmId = 0;
 
     @Override
     public void add(Film film) {
         int filmId = film.getId();
+        if (filmId == 0) {
+            film.setId(++lastGeneratedFilmId);
+            filmId = film.getId();
+        }
         if (films.containsKey(filmId)) {
             throw new ValidationException(String.format("Фильм id=%d уже есть в фильмотеке.", film.getId()));
         }
@@ -25,7 +31,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film read(int id) {
         if (!films.containsKey(id))
-            throw new ValidationException(String.format("Фильм id=%d отсутствует в фильмотеке.", id));
+            throw new NotFoundException(String.format("Фильм id=%d отсутствует в фильмотеке.", id));
         return films.get(id);
     }
 
@@ -38,7 +44,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public void update(Film film) {
         int filmId = film.getId();
         if (!films.containsKey(filmId)) {
-            throw new ValidationException(String.format("Фильм id=%d отсутствует в фильмотеке.", filmId));
+            throw new NotFoundException(String.format("Фильм id=%d отсутствует в фильмотеке.", filmId));
         }
         films.put(filmId, film);
     }

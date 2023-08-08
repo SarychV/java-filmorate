@@ -14,7 +14,8 @@ import javax.validation.constraints.*;
 @EqualsAndHashCode
 @ToString
 public class User {
-    private int id;
+    @PositiveOrZero
+    private Integer id = 0;
     @Email
     @NotNull
     private String email;
@@ -32,7 +33,7 @@ public class User {
         this.friends = new HashSet<>();
     }
 
-    public User(int id, String email, String login, String name, LocalDate date) {
+    public User(Integer id, String email, String login, String name, LocalDate date) {
         this.id = id;
         this.email = email;
         this.login = login;

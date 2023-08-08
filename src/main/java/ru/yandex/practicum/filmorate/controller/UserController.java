@@ -36,6 +36,7 @@ public class UserController {
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
+        hasValidUserId(user.getId());
         userService.updateUser(user);
         log.info("Обновлены сведения о пользователе: " + user);
         return user;
@@ -43,50 +44,45 @@ public class UserController {
 
     @PutMapping("/{id}/friends/{friendId}")
     public void makeFriends(@PathVariable int id, @PathVariable int friendId) {
-        if (id <= 0 || friendId <= 0)
-            throw new ValidationException(
-                    String.format("Указан неверный идентификатор пользователя: id=%d", id <= 0 ? id : friendId)
-            );
+        hasValidUserId(id);
         userService.makeFriends(id, friendId);
     }
 
     @GetMapping
     public Collection<User> getUsers() {
-        return userService.selectAllUsers();
+        return userService.findAllUsers();
     }
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable int id) {
-        if (id <= 0) throw new ValidationException("Неверное значение идентификатора пользователя.");
-        return userService.selectUserById(id);
+        hasValidUserId(id);
+        return userService.findUserById(id);
     }
 
     @GetMapping("/{id}/friends")
     public Collection<User> showListOfFriends(@PathVariable int id) {
-        if (id <= 0) throw new ValidationException(
-                String.format("Указан неверный идентификатор пользователя: id=%d", id)
-                );
+        hasValidUserId(id);
         return userService.formListOfFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public Collection<User> showCommonFriends(@PathVariable int id, @PathVariable int otherId) {
-        if (id <= 0 || otherId <= 0)
-            throw new ValidationException(
-                    String.format("Указан неверный идентификатор пользователя: id=%d", id <= 0 ? id : otherId)
-            );
+        hasValidUserId(id);
+        hasValidUserId(otherId);
         return userService.formCommonFriendsList(id, otherId);
     }
 
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public void removeFriends(@PathVariable int id, @PathVariable int friendId) {
-        if (id <= 0 || friendId <= 0) {
-            throw new ValidationException(
-                    String.format("Указан неверный идентификатор пользователя: id=%d", id <= 0 ? id : friendId)
-            );
-        }
+        hasValidUserId(id);
+        hasValidUserId(friendId);
         userService.removeFriends(id, friendId);
     }
 
+    private boolean hasValidUserId(int id) {
+        if (id <= 0) throw new ValidationException(
+                String.format("Используется неверный идентификатор пользователя: id=%d", id));
+        return true;
+    }
 }

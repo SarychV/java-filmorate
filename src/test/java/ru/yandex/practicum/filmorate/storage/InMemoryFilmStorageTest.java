@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage;
 
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.NotFoundException;
 import ru.yandex.practicum.filmorate.model.ValidationException;
 
 import java.time.LocalDate;
@@ -19,7 +20,7 @@ public class InMemoryFilmStorageTest {
         Film film = new Film(filmId, "The Lion King", "Dramatic story about little lion.",
                 LocalDate.of(1994, 6, 24), 88);
 
-        ValidationException ex = assertThrows(ValidationException.class, () -> {
+        NotFoundException ex = assertThrows(NotFoundException.class, () -> {
             storage.read(filmId);
         });
         assertEquals(
@@ -30,10 +31,10 @@ public class InMemoryFilmStorageTest {
         Film returnedFilm = storage.read(filmId);
         assertEquals(film, returnedFilm);
 
-        ex = assertThrows(ValidationException.class, () -> {
+        ValidationException ex1 = assertThrows(ValidationException.class, () -> {
             storage.add(film);
         });
-        assertEquals(String.format("Фильм id=%d уже есть в фильмотеке.", filmId), ex.getMessage());
+        assertEquals(String.format("Фильм id=%d уже есть в фильмотеке.", filmId), ex1.getMessage());
         storage.deleteAll();
     }
 
