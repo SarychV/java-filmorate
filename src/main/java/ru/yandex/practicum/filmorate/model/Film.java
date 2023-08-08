@@ -37,7 +37,8 @@ public class Film {
     }
 
     public void removeLike(long userId) {
-        likes.remove(userId);
+        if (!likes.remove(userId))
+            throw new NotFoundException(String.format("Пользователь с id=%d отсутствует.", userId));
     }
 
     public int countLikes() {
