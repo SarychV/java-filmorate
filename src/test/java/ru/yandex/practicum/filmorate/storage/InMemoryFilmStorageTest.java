@@ -2,8 +2,7 @@ package ru.yandex.practicum.filmorate.storage;
 
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.NotFoundException;
-import ru.yandex.practicum.filmorate.model.ValidationException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -30,11 +29,6 @@ public class InMemoryFilmStorageTest {
         storage.add(film);
         Film returnedFilm = storage.read(filmId);
         assertEquals(film, returnedFilm);
-
-        ValidationException ex1 = assertThrows(ValidationException.class, () -> {
-            storage.add(film);
-        });
-        assertEquals(String.format("Фильм id=%d уже есть в фильмотеке.", filmId), ex1.getMessage());
         storage.deleteAll();
     }
 

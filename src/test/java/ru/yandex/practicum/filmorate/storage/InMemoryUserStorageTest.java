@@ -1,9 +1,8 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.model.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.ValidationException;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -30,10 +29,6 @@ public class InMemoryUserStorageTest {
         User returnedUser = storage.read(userId);
         assertEquals(user, returnedUser);
 
-        ValidationException ex1 = assertThrows(ValidationException.class, () -> {
-            storage.add(user);
-        });
-        assertEquals(String.format("Пользователь id=%d уже зарегистрирован.", userId), ex1.getMessage());
         storage.deleteAll();
     }
 

@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.ValidationException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
@@ -30,9 +30,6 @@ public class FilmController {
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
-        int filmId = film.getId();
-        if (filmId != 0) throw new ValidationException(
-                String.format("Используется неверный идентификатор фильма: id=%d", filmId));
         filmService.addFilm(film);
         log.info("Фильм добавлен в фильмотеку: " + film);
         return film;

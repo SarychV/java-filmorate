@@ -5,14 +5,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 import lombok.*;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.validator.DateAfter;
 
 import javax.validation.constraints.*;
 
 @Data
 public class Film {
-    @PositiveOrZero
-    private Integer id = 0;
+    private Integer id;
     @NotBlank
     private String name;
     @Size(max = 200)

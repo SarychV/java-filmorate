@@ -1,9 +1,8 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.model.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.ValidationException;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,15 +15,8 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void add(User user) {
-        int userId = user.getId();
-        if (userId == 0) {
-            user.setId(++lastGeneratedUserId);
-            userId = user.getId();
-        }
-        if (users.containsKey(userId)) {
-            throw new ValidationException(String.format("Пользователь id=%d уже зарегистрирован.", user.getId()));
-        }
-        users.put(userId, user);
+        user.setId(++lastGeneratedUserId);
+        users.put(user.getId(), user);
     }
 
     @Override

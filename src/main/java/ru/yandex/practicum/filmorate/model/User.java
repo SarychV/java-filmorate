@@ -14,8 +14,7 @@ import javax.validation.constraints.*;
 @EqualsAndHashCode
 @ToString
 public class User {
-    @PositiveOrZero
-    private Integer id = 0;
+    private Integer id;
     @Email
     @NotNull
     private String email;
