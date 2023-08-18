@@ -1,52 +1,90 @@
 package ru.yandex.practicum.filmorate.model;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.time.LocalDate;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class FilmTest {
-    Film film;
+    private static Validator validator;
 
-    @BeforeEach
-    public void initFilm() {
-        film = new Film(1, "The Lion King", "Dramatic story about little lion.",
-                LocalDate.of(1994, 6, 24), 88);
+    @BeforeAll
+    static void setUpValidator() {
+        try (ValidatorFactory factory
+                     = Validation.buildDefaultValidatorFactory()) {
+            validator = factory.getValidator();
+        }
     }
 
     @Test
-    public void filmContainsCorrectFields() {
-        Assertions.assertDoesNotThrow(film::validate);
+    void filmIsValid() {
+        Film film = new Film(1, "The Lion King", "Dramatic story about little lion.", LocalDate.of(1994, 6, 24), 88);
+        Set<ConstraintViolation<Film>> constraintViolations =
+                validator.validate(film);
+        assertEquals(0, constraintViolations.size());
     }
 
     @Test
-    public void checkIncorrectNameField() {
-        film = film.toBuilder().name("").build();
-        Assertions.assertThrows(ValidationException.class, film::validate);
+    void checkIncorrectNameField() {
+        Film film = new Film(1, " ", "Dramatic story about little lion.", LocalDate.of(1994, 6, 24), 88);
+        Set<ConstraintViolation<Film>> constraintViolations =
+                validator.validate(film);
+        assertEquals(1, constraintViolations.size());
+        assertEquals("must not be blank", constraintViolations.iterator().next().getMessage());
+
+        film = new Film(1, null, "Dramatic story about little lion.", LocalDate.of(1994, 6, 24), 88);
+        constraintViolations = validator.validate(film);
+        assertEquals(1, constraintViolations.size());
+        assertEquals("must not be blank", constraintViolations.iterator().next().getMessage());
     }
 
     @Test
-    public void checkIncorrectDescriptionField() {
-        StringBuilder descriptionMore200 = new StringBuilder();
-        descriptionMore200.append("abcd".repeat(50));
-        film = film.toBuilder().description(descriptionMore200.toString()).build();
-        Assertions.assertDoesNotThrow(film::validate);
-        descriptionMore200.append("defg");
-        film = film.toBuilder().description(descriptionMore200.toString()).build();
-        Assertions.assertThrows(ValidationException.class, film::validate);
+    void checkIncorrectDescriptionField() {
+        Film film = new Film(1, "The Lion King", "abcd".repeat(50) + "a", LocalDate.of(1994, 6, 24), 88);
+        Set<ConstraintViolation<Film>> constraintViolations = validator.validate(film);
+        assertEquals(1, constraintViolations.size());
+        assertEquals("size must be between 0 and 200", constraintViolations.iterator().next().getMessage());
     }
 
     @Test
     void checkIncorrectReleaseDate() {
-        film = film.toBuilder().releaseDate(LocalDate.of(1895, 12, 27)).build();
-        Assertions.assertThrows(ValidationException.class, film::validate);
+        Film film = new Film(1, "The Lion King", "Dramatic story about little lion.", LocalDate.of(1895, 12, 27), 88);
+        Set<ConstraintViolation<Film>> constraintViolations = validator.validate(film);
+        assertEquals(1, constraintViolations.size());
+        assertEquals("Значение даты должно быть позже \"28.12.1895\".",
+                constraintViolations.iterator().next().getMessage());
     }
 
     @Test
-    public void checkIncorrectDuration() {
-        film = film.toBuilder().duration(-1).build();
-        Assertions.assertThrows(ValidationException.class, film::validate);
+    void checkIncorrectDuration() {
+        Film film = new Film(1, "The Lion King", "Dramatic story about little lion.", LocalDate.of(1994, 6, 24), -1);
+        Set<ConstraintViolation<Film>> constraintViolations = validator.validate(film);
+        assertEquals(1, constraintViolations.size());
+        assertEquals("must be greater than or equal to 0", constraintViolations.iterator().next().getMessage());
+
+        film = new Film(1, "The Lion King", "Dramatic story about little lion.", LocalDate.of(1994, 6, 24), 0);
+        constraintViolations = validator.validate(film);
+        assertEquals(0, constraintViolations.size());
+    }
+
+    @Test
+    void filmLikesTest() {
+        Film film = new Film(1, "The Lion King", "Dramatic story about little lion.", LocalDate.of(1994, 6, 24), 88);
+        assertEquals(0, film.countLikes());
+        film.addLike(1);
+        film.addLike(1);
+        film.addLike(2);
+        assertEquals(2, film.countLikes());
+        film.removeLike(1);
+        assertEquals(1, film.countLikes());
     }
 }
+
