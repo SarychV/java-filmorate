@@ -2,10 +2,9 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -14,11 +13,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-
     private final UserStorage userStorage;
 
     @Autowired
-    public UserService(InMemoryUserStorage storage) {
+    public UserService(UserDbStorage storage) {
         this.userStorage = storage;
     }
 
@@ -39,23 +37,15 @@ public class UserService {
     }
 
     public Collection<User> findAllUsers() {
-        return userStorage.selectAllUsers();
+        return userStorage.findAllUsers();
     }
 
     public void makeFriends(int id1, int id2) {
-        User u1 = findUserById(id1);
-        User u2 = findUserById(id2);
-        if (u1 != null && u2 != null) {
-            u1.addFriend(id2);
-            u2.addFriend(id1);
-        } else {
-            throw new NotFoundException("Пользователь отсутствует.");
-        }
+        userStorage.makeFriends(id1, id2);
     }
 
     public void removeFriends(int id1, int id2) {
-        findUserById(id1).removeFriend(id2);
-        findUserById(id2).removeFriend(id1);
+        userStorage.removeFriends(id1, id2);
     }
 
     public Collection<User> formListOfFriends(int userId) {

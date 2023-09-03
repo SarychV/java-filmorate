@@ -1,6 +1,10 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -10,13 +14,16 @@ import java.util.Collection;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class InMemoryUserStorageTest {
-    UserStorage storage = new InMemoryUserStorage();
+@SpringBootTest
+@AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
+public class UserDbStorageTests {
+    private final UserDbStorage storage;
 
     @Test
     void shouldAddAndReadUserInStorage() {
         int userId = 1;
-        User user = new User(1, "user@localhost", "user1", "user#1", LocalDate.of(2002,03,19));
+        User user = new User(1,"user@localhost", "user1", "user#1", LocalDate.of(2002,03,19));
 
         NotFoundException ex = assertThrows(NotFoundException.class, () -> {
             storage.read(userId);
@@ -80,4 +87,3 @@ public class InMemoryUserStorageTest {
         assertEquals(3, returned.size());
     }
 }
-

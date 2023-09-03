@@ -30,17 +30,21 @@ public class FilmController {
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
+        log.info("В фильмотеку добавляется фильм: " + film);
         filmService.addFilm(film);
-        log.info("Фильм добавлен в фильмотеку: " + film);
-        return film;
+        Film savedFilm = filmService.findFilmById(film.getId());
+        log.info("Добавлен фильм: " + savedFilm);
+        return savedFilm;
     }
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
         hasValidFilmId(film.getId());
+        log.info("Вносятся изменения в фильм:" + film);
         filmService.updateFilm(film);
-        log.info("Фильм обновлен в фильмотеке: " + film);
-        return film;
+        Film modifiedFilm = filmService.findFilmById(film.getId());
+        log.info("Фильм изменен: " + modifiedFilm);
+        return modifiedFilm;
     }
 
     @PutMapping("/{id}/like/{userId}")
@@ -68,7 +72,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Collection<Film> sendMorePopularFilms(@RequestParam Optional<Integer> count) {
+    public Collection<Film> showMorePopularFilms(@RequestParam Optional<Integer> count) {
         if (count.isPresent()) {
             return filmService.findMorePopularFilms(count.get());
         }

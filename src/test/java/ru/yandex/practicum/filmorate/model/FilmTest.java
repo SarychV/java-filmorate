@@ -79,11 +79,11 @@ public class FilmTest {
     void filmLikesTest() {
         Film film = new Film(1, "The Lion King", "Dramatic story about little lion.", LocalDate.of(1994, 6, 24), 88);
         assertEquals(0, film.countLikes());
-        film.addLike(1);
-        film.addLike(1);
-        film.addLike(2);
+        film.getLikes().add(1L);
+        film.getLikes().add(1L);
+        film.getLikes().add(2L);
         assertEquals(2, film.countLikes());
-        film.removeLike(1);
+        film.getLikes().remove(1L);
         assertEquals(1, film.countLikes());
     }
 }

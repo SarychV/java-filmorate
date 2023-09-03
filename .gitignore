@@ -1,5 +1,6 @@
 *.class
 *.log
+*.cmd
 *.jar
 *.war
 *.nar
@@ -41,6 +42,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Maven ###
+HELP.md
+mvnw
 
 *.db
 db/*

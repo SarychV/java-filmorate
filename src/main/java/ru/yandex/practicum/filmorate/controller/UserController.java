@@ -29,17 +29,21 @@ public class UserController {
 
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
+        log.info("Регистрируется пользователь: " + user);
         userService.addUser(user);
-        log.info("Пользователь зарегистрирован: " + user);
-        return user;
+        User savedUser = userService.findUserById(user.getId());
+        log.info("Пользователь зарегистрирован: " + savedUser);
+        return savedUser;
     }
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
         hasValidUserId(user.getId());
+        log.info("Вносятся изменения в данные пользователя: " + user);
         userService.updateUser(user);
-        log.info("Обновлены сведения о пользователе: " + user);
-        return user;
+        User modifiedUser = userService.findUserById(user.getId());
+        log.info("Пользователь изменен: " + modifiedUser);
+        return modifiedUser;
     }
 
     @PutMapping("/{id}/friends/{friendId}")

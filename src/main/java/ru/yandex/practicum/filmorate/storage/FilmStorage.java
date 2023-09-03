@@ -9,7 +9,7 @@ public interface FilmStorage {
 
     Film read(int id);
 
-    Collection<Film> selectAllFilms();
+    Collection<Film> findAllFilms();
 
     void update(Film film);
 
@@ -18,4 +18,8 @@ public interface FilmStorage {
     void deleteAll();
 
     int size();
+
+    void addLikeToFilm(int filmId, int userId);
+
+    void removeLikeFromFilm(int filmId, int userId);
 }
