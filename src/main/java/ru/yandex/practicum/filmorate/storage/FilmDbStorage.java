@@ -200,7 +200,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void removeLikeFromFilm(int filmId, int userId) {
-        if (filmId <=0 || userId <= 0) {
+        if (filmId <= 0 || userId <= 0) {
             throw new NotFoundException(
                     String.format("Лайк пользователя с id=%d для фильма id=%d не удален.", userId, filmId));
         }
