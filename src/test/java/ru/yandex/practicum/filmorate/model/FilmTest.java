@@ -17,6 +17,7 @@ public class FilmTest {
     private static Validator validator;
 
     Rating rating = new Rating();
+    
     FilmTest() {
         rating.setId(1);
         rating.setName("G");
