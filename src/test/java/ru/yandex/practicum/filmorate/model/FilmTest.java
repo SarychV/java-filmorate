@@ -15,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class FilmTest {
     private static Validator validator;
+    Rating rating;
 
-    Rating rating = new Rating();
-    
     FilmTest() {
+        rating = new Rating();
         rating.setId(1);
         rating.setName("G");
     }
