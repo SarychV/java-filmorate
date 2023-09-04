@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
@@ -29,22 +28,24 @@ public class UserController {
 
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
+        log.info("Регистрируется пользователь: " + user);
         userService.addUser(user);
-        log.info("Пользователь зарегистрирован: " + user);
-        return user;
+        User savedUser = userService.findUserById(user.getId());
+        log.info("Пользователь зарегистрирован: " + savedUser);
+        return savedUser;
     }
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
-        hasValidUserId(user.getId());
+        log.info("Вносятся изменения в данные пользователя: " + user);
         userService.updateUser(user);
-        log.info("Обновлены сведения о пользователе: " + user);
-        return user;
+        User modifiedUser = userService.findUserById(user.getId());
+        log.info("Пользователь изменен: " + modifiedUser);
+        return modifiedUser;
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     public void makeFriends(@PathVariable int id, @PathVariable int friendId) {
-        hasValidUserId(id);
         userService.makeFriends(id, friendId);
     }
 
@@ -54,35 +55,23 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable int id) {
-        hasValidUserId(id);
+    public User findUserById(@PathVariable int id) {
         return userService.findUserById(id);
     }
 
     @GetMapping("/{id}/friends")
     public Collection<User> showListOfFriends(@PathVariable int id) {
-        hasValidUserId(id);
         return userService.formListOfFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public Collection<User> showCommonFriends(@PathVariable int id, @PathVariable int otherId) {
-        hasValidUserId(id);
-        hasValidUserId(otherId);
         return userService.formCommonFriendsList(id, otherId);
     }
 
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public void removeFriends(@PathVariable int id, @PathVariable int friendId) {
-        hasValidUserId(id);
-        hasValidUserId(friendId);
         userService.removeFriends(id, friendId);
-    }
-
-    private boolean hasValidUserId(int id) {
-        if (id <= 0) throw new ValidationException(
-                String.format("Используется неверный идентификатор пользователя: id=%d", id));
-        return true;
     }
 }

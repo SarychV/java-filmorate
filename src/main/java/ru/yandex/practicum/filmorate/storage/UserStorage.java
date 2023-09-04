@@ -9,13 +9,17 @@ public interface UserStorage {
 
     User read(int id);
 
-    Collection<User> selectAllUsers();
+    Collection<User> findAllUsers();
 
     void update(User user);
 
     void delete(User user);
 
     void deleteAll();
+
+    void makeFriends(int id1, int id2);
+
+    void removeFriends(int id1, int id2);
 
     int size();
 }

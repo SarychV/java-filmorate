@@ -27,7 +27,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Collection<User> selectAllUsers() {
+    public Collection<User> findAllUsers() {
         return users.values();
     }
 
@@ -48,6 +48,24 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public void deleteAll() {
         users.clear();
+    }
+
+    @Override
+    public void makeFriends(int id1, int id2) {
+        User u1 = read(id1);
+        User u2 = read(id2);
+        if (u1 != null && u2 != null) {
+            u1.addFriend(id2);
+            u2.addFriend(id1);
+        } else {
+            throw new NotFoundException("Пользователь отсутствует.");
+        }
+    }
+
+    @Override
+    public void removeFriends(int id1, int id2) {
+        read(id1).removeFriend(id2);
+        read(id2).removeFriend(id1);
     }
 
     @Override

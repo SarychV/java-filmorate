@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import lombok.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.validator.DateAfter;
 
 import javax.validation.constraints.*;
@@ -21,6 +20,9 @@ public class Film {
     private LocalDate releaseDate;
     @PositiveOrZero
     private int duration;
+    @NotNull
+    private Rating mpa;
+    private Set<Genre> genres;
     private Set<Long> likes;
 
     public Film(int id, String name, String description, LocalDate releaseDate, int duration) {
@@ -30,15 +32,7 @@ public class Film {
         this.releaseDate = releaseDate;
         this.duration = duration;
         likes = new HashSet<>();
-    }
-
-    public void addLike(long userId) {
-        likes.add(userId);
-    }
-
-    public void removeLike(long userId) {
-        if (!likes.remove(userId))
-            throw new NotFoundException(String.format("Пользователь с id=%d отсутствует.", userId));
+        genres = new HashSet<>();
     }
 
     public int countLikes() {
