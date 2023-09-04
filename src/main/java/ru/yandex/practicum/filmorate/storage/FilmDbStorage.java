@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -135,7 +136,7 @@ public class FilmDbStorage implements FilmStorage {
         likes.add((long) rs.getInt("user_id"));
     }
 
-    @Override
+/*    @Override
     public Collection<Film> findAllFilms() {
         List<Film> films = new ArrayList<>();
         String sqlQuery = "SELECT id FROM films ORDER BY id ASC;";
@@ -146,6 +147,100 @@ public class FilmDbStorage implements FilmStorage {
             }
         }
         return films;
+    }
+
+ */
+
+    @Override
+    public Collection<Film> findAllFilms() {
+        String sqlQuery =
+        "SELECT id, name, description, release_date, duration, rating_id, rating_name, genre_id, genre_name, user_id " +
+        "FROM (  SELECT id, name, description, release_date, duration, rating_id, rating_name, genre_id, genre_name " +
+                "FROM (  SELECT films.id, films.name, description, release_date, duration, " +
+                        "rating_id, ratings.name AS rating_name " +
+                        "FROM films " +
+                        "LEFT OUTER JOIN ratings " +
+                        "ON rating_id=ratings.id " +
+                ") as t1 " +
+                "LEFT OUTER JOIN " +
+                        "(   SELECT film_id, genre_id, name AS genre_name " +
+                                "FROM film_genre " +
+                                "LEFT OUTER JOIN genres ON genre_id=id ORDER BY genre_id ASC " +
+                        ") as t2 " +
+               " ON t1.id=t2.film_id ORDER BY id ASC " +
+            ") " +
+        "LEFT OUTER JOIN likes ON id=film_id; ";
+
+        /*
+        SELECT id, name, description, release_date, duration, rating_id, rating_name, genre_id, genre_name, user_id
+        FROM (  SELECT id, name, description, release_date, duration, rating_id, rating_name, genre_id, genre_name
+                FROM (  SELECT films.id, films.name, description, release_date, duration,
+                             rating_id, ratings.name AS rating_name
+                        FROM films
+                        LEFT OUTER JOIN ratings
+                        ON rating_id=ratings.id
+                     ) as t1
+                LEFT OUTER JOIN
+                    (   SELECT film_id, genre_id, name AS genre_name
+                        FROM film_genre
+                        LEFT OUTER JOIN genres ON genre_id=id ORDER BY genre_id ASC
+                    ) as t2
+                ON t1.id=t2.film_id ORDER BY id ASC
+             )
+        LEFT OUTER JOIN likes ON id=film_id;
+        */
+
+        return jdbcTemplate.query(sqlQuery, (ResultSetExtractor<List<Film>>)(rs) -> {
+            List<Film> films = new ArrayList<>();
+            Film film = null;
+            int lastFilmId = 0;
+
+            while (rs.next()) {
+                int filmId = rs.getInt("id");
+                if (filmId != lastFilmId) {
+                    lastFilmId = filmId;
+                    if (film != null) {
+                        films.add(film);
+                    }
+                    film = new Film(filmId,
+                            rs.getString("name"),
+                            rs.getString("description"),
+                            rs.getDate("release_date").toLocalDate(),
+                            rs.getInt("duration"));
+
+                    Rating rating = new Rating();
+                    rating.setId(rs.getInt("rating_id"));
+                    rating.setName(rs.getString("rating_name"));
+                    film.setMpa(rating);
+
+                    Genre genre = new Genre();
+                    genre.setId(rs.getInt("genre_id"));
+                    genre.setName(rs.getString("genre_name"));
+                    if (genre.getId() != 0) {
+                        film.getGenres().add(genre);
+                    }
+                    int userLikeId = rs.getInt("user_id");
+                    if (userLikeId != 0) {
+                        film.getLikes().add((long) userLikeId);
+                    }
+                } else {
+                    Genre genre = new Genre();
+                    genre.setId(rs.getInt("genre_id"));
+                    genre.setName(rs.getString("genre_name"));
+                    if (film != null && genre.getId() != 0) {
+                        film.getGenres().add(genre);
+                    }
+                    int userLikeId = rs.getInt("user_id");
+                    if (userLikeId != 0) {
+                        film.getLikes().add((long) userLikeId);
+                    }
+                }
+            }
+            if (film != null) {
+                films.add(film);
+            }
+            return films;
+        });
     }
 
     @Override
