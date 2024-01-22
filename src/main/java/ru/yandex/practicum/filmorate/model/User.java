@@ -18,7 +18,6 @@ public class User {
     @Email
     @NotNull
     private String email;
-
     @NotNull
     @NotEmpty
     @WithoutBlanks
@@ -41,7 +40,7 @@ public class User {
         this.friends = new HashSet<>();
     }
 
-    public User(int id, String email, String login, String name, LocalDate date, Set<Long> friends) {
+    public User(Integer id, String email, String login, String name, LocalDate date, Set<Long> friends) {
         this.id = id;
         this.email = email;
         this.login = login;

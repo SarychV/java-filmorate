@@ -28,7 +28,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> selectAllFilms() {
+    public Collection<Film> findAllFilms() {
         return films.values();
     }
 
@@ -54,5 +54,18 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public int size() {
         return films.size();
+    }
+
+    @Override
+    public void addLikeToFilm(int filmId, int userId) {
+        read(filmId).getLikes().add((long) userId);
+    }
+
+    @Override
+    public void removeLikeFromFilm(int filmId, int userId) {
+        if (!read(filmId).getLikes().remove((long) userId)) {
+            throw new NotFoundException(
+                    String.format("Лайк пользователя с id=%d для фильма id=%d не удален.", userId, filmId));
+        }
     }
 }

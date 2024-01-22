@@ -2,9 +2,10 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.util.Collection;
 import java.util.List;
@@ -12,11 +13,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
-
     private final FilmStorage filmStorage;
 
     @Autowired
-    public FilmService(InMemoryFilmStorage storage) {
+    public FilmService(FilmDbStorage storage) {
         this.filmStorage = storage;
     }
 
@@ -25,23 +25,28 @@ public class FilmService {
     }
 
     public void updateFilm(Film film) {
+        hasValidFilmId(film.getId());
         filmStorage.update(film);
     }
 
     public Film findFilmById(int id) {
+        hasValidFilmId(id);
         return filmStorage.read(id);
     }
 
     public Collection<Film> findAllFilms() {
-        return filmStorage.selectAllFilms();
+        return filmStorage.findAllFilms();
     }
 
     public void addLikeToFilm(int filmId, int userId) {
-        findFilmById(filmId).addLike(userId);
+        hasValidFilmId(filmId);
+        hasValidUserId(userId);
+        filmStorage.addLikeToFilm(filmId, userId);
     }
 
     public void removeLikeFromFilm(int filmId, int userId) {
-        findFilmById(filmId).removeLike(userId);
+        hasValidFilmId(filmId);
+        filmStorage.removeLikeFromFilm(filmId, userId);
     }
 
     public List<Film> findMorePopularFilms(int size) {
@@ -54,5 +59,17 @@ public class FilmService {
                 })
                 .limit(size)
                 .collect(Collectors.toList());
+    }
+
+    private boolean hasValidUserId(int id) {
+        if (id <= 0) throw new ValidationException(
+                String.format("Используется неверный идентификатор пользователя: id=%d", id));
+        return true;
+    }
+
+    private boolean hasValidFilmId(int id) {
+        if (id <= 0) throw new ValidationException(
+                String.format("Используется неверный идентификатор фильма: id=%d", id));
+        return true;
     }
 }
